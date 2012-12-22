@@ -82,21 +82,4 @@
 ]]></content>
   </entry>
   
-  <entry>
-    <title type="html"><![CDATA[Hello World2]]></title>
-    <link href="http://afarfly.github.com/blog/hello-world2.html"/>
-    <updated>2012-12-20T14:20:00+08:00</updated>
-    <id>http://afarfly.github.com/blog/hello-world2</id>
-    <content type="html"><![CDATA[
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Hello World]]></title>
-    <link href="http://afarfly.github.com/blog/hello-world.html"/>
-    <updated>2012-12-20T14:16:00+08:00</updated>
-    <id>http://afarfly.github.com/blog/hello-world</id>
-    <content type="html"><![CDATA[]]></content>
-  </entry>
-  
 </feed>
