@@ -14,6 +14,160 @@
 
   
   <entry>
+    <title type="html"><![CDATA[自动生成VPN路由表]]></title>
+    <link href="http://afarfly.github.com/blog/zi-dong-sheng-cheng-vpnlu-you-biao.html"/>
+    <updated>2012-12-27T22:18:00+08:00</updated>
+    <id>http://afarfly.github.com/blog/zi-dong-sheng-cheng-vpnlu-you-biao</id>
+    <content type="html"><![CDATA[<p>墙越来越高, 各种翻墙的手段来来回回的换.
+最终还是老老实实地挂VPN.</p>
+
+<p>为了尽可能提高速度, 需要分流国内与国外线路. 思路就是尽可能地只让确实需要翻墙的流量走VPN, 其他的正常流量仍然走本地网络.</p>
+
+<p>目前有两个方案 <br/>
+1. VPN网关为默认网关. 根据国内IP段生成路由表, 指向本地网关. 此方案以chnroutes为代表 <br/>
+2. 以chnroutes的思路为基础, 只针对部分需要翻墙的IP段生成路由表, 指向VPN网关. 此方案比较灵活, 可定制性高, 生成的路由表相比chnroutes体积小不少. 注意, 使用此方案的话需以本地网关为默认网关, 即在VPN连接属性中不选中&#8221;通过VPN连接发送所有流量&#8221;.</p>
+
+<p>根据实际情况, 决定选择方案2.</p>
+
+<p>找了一些常用的需翻墙IP段(google, twitter, facebook&#8230;). 并写了一个Python脚本来生成最终的路由表脚本, 同chnroutes风格.</p>
+
+<p>因为自己用的MAC, 所以直接生成的MAC下PPTP的ip-up脚本. 把生成的ip-up放到/etc/ppp/下, 并sudo chmod a+x即可.</p>
+
+<pre><code>chmod a+x ip-up
+sudo cp ip-up /etc/ppp/
+#VPN连接后检查路由表是否添加成功. 
+netstat -nr
+</code></pre>
+
+<p>每次连接VPN后会自动添加定制的路由表, 并会在VPN断开后自动去除添加的路由表.</p>
+
+<p>目前已包含的IP库:</p>
+
+<blockquote><p>google   <br/>
+twitter   <br/>
+facebook      <br/>
+dropbox   <br/>
+Sourceforge   <br/>
+wordpress.com <br/>
+SugarSync <br/>
+path.com  <br/>
+bit.ly<br/>
+cn.nytimes.com<br/>
+who.is(仅用来验证分流是否生效)</p></blockquote>
+
+<p>下面是具体的Python代码</p>
+
+<div><script src='https://gist.github.com/4388843.js?file=vpnroute.py'></script>
+<noscript><pre><code>#!/usr/bin/env python
+#-*- coding:utf-8 -*-
+__author__ = 'lucas'
+import string
+import sys
+import os
+import time
+
+g_netshCommand = ''
+g_routeDefFilePath = ''
+
+g_outcontent = ''
+
+
+def main():
+    global g_routeDefFilePath, g_outcontent
+
+    g_outcontent += '#!/bin/sh' + '\n'
+    g_outcontent += 'export PATH=&quot;/bin:/sbin:/usr/sbin:/usr/bin:/usr/local/bin&quot;' + '\n'
+    g_outcontent += &quot;OLDGW=`netstat -nr | grep '^default' | grep 'ppp' | sed 's/default *([0-9\.]*) .*/\1/'`&quot; + '\n'
+    g_outcontent += 'if [ -z $OLDGW ];then' + '\n'
+    g_outcontent += '    exit 0' + '\n'
+    g_outcontent += 'fi' + '\n' + '\n'
+    g_outcontent += 'echo &quot;${OLDGW}&quot; &gt; /tmp/pptp_oldgw' + '\n' + '\n'
+    g_outcontent += 'dscacheutil -flushcache' + '\n' + '\n'
+    #cmdnetsh = &quot;netstat -nr | grep '^default' | grep -v 'ppp' | gsed 's/default *\([0-9\.]*\) .*/\1/'&quot;
+    #os.system(cmdnetsh)
+    #gateway = raw_input('gateway index: ')
+    file = raw_input('route definiation file[default-ips]: ')
+    if not file:
+      file = 'default-ips'
+    fh = loadfile(file)
+    g_routeDefFilePath = os.path.dirname(file)
+    if fh is None:
+        sys.exit('File [' + file + '] not found')
+    fulltext = fh.readlines()
+    fh.close()
+    checkAddOrDelete()
+    processRoute(fulltext, 0)
+
+    fos = open('ip-up', 'w')
+    fos.write(g_outcontent)
+    fos.close()
+
+
+def checkline(text, idx):
+    global g_routeDefFilePath
+    if text.startswith('#include '):
+        incFile = str(text).replace('#include', '').strip()
+        fullPath = os.path.join(g_routeDefFilePath, incFile)
+        fh = loadfile(fullPath)
+        fulltext = fh.readlines()
+        fh.close()
+        print 'process file', incFile
+        time.sleep(1)
+        processRoute(fulltext, idx)
+        return False
+    if text.startswith('#'):
+        return False
+    return True
+
+
+def loadfile(file):
+    if os.path.exists(file):
+        return open(file, 'r')
+    return None
+
+
+def processRoute(fulltext, idx):
+    global g_netshCommand, g_outcontent
+    for line in fulltext:
+        if checkline(line, idx):
+            param = {}
+            param['route'] = line.strip()
+            #param['idx'] = idx
+            cmd = g_netshCommand.safe_substitute(param)
+            print cmd
+            g_outcontent += cmd + '\n'
+            #os.system(cmd)
+            #print '%18s' % line.rstrip(), 'ok'
+            pass
+
+
+def checkAddOrDelete():
+    global g_netshCommand
+    add = raw_input('Add or Delete a|d : ')
+    if add.lower() == 'a':
+        g_netshCommand = string.Template('route add $route &quot;${OLDGW}&quot;')
+    if add.lower() == 'd':
+        g_netshCommand = string.Template('route delete $route &quot;${OLDGW}&quot;')
+    if add.lower() != 'a' and add.lower() != 'd':
+        checkAddOrDelete()
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except KeyboardInterrupt:
+        sys.exit()
+</code></pre></noscript></div>
+
+
+<p>以及<a href="https://gist.github.com/raw/4388843/e2f7b82ce9ed753cc4e4c0a881631ce343fa985e/default-ips">IP库附件</a>, 与vpnroute.py放在同一目录下, 否则运行时指定全路径</p>
+
+<p>下一步, 实现通过域名转换IP, 这样只用维护翻墙域名库, 更加便于定制.
+<a href="http://archives.aidanfindlater.com/blog/2010/02/03/use-vpn-for-specific-sites-on-mac-os-x/">url</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[Base64原理及编解码过程解析]]></title>
     <link href="http://afarfly.github.com/blog/base64yuan-li-ji-bian-jie-ma-guo-cheng-jie-xi.html"/>
     <updated>2012-12-22T15:21:00+08:00</updated>
@@ -56,7 +210,7 @@
 
 <blockquote><ol>
 <li>如有&#8217;=&#8217;号则去除.  一一对应码表取出下标值</li>
-<li>转化为二进制, 去掉高位两个0</li>
+<li>转化为二进制, 去掉高位两个0, 变为6bit每字节</li>
 <li>按8bit划分. 末尾不足8bit的丢弃. 得到最终的原始二进制编码</li>
 </ol>
 </blockquote>

@@ -3,7 +3,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>MrZhang.me</title>
+  <title>自动生成VPN路由表 - MrZhang.me</title>
   
   <meta name="description" content="自动生成VPN路由表 2012-12-27 Thu Tags: vpn, mac 墙越来越高, 各种翻墙的手段来来回回的换.
 最终还是老老实实地挂VPN. 为了尽可能提高速度, 需要分流国内与国外线路. 思路就是尽可能地只让确实需要翻墙的流量走VPN, 其他的正常流量仍然走本地网络. &hellip;" />
@@ -41,15 +41,12 @@ html,body{height:100%;overflow:hidden}
 <header class="my-nickname"><em title="">wǒ_is神仙</em></header>
 
 <section class="main-wrap clearfix">
-  
-  
-  
-    <article>
-      
+  <article role="article">
+    
 
 <header>
   
-    <h1 class="entry-title"><a href="/blog/zi-dong-sheng-cheng-vpnlu-you-biao.html">自动生成VPN路由表</a></h1>
+    <h1 class="entry-title">自动生成VPN路由表</h1>
   
   
     <p class="meta">
@@ -234,128 +231,20 @@ if __name__ == '__main__':
 <p>下一步, 实现通过域名转换IP, 这样只用维护翻墙域名库, 更加便于定制.
 <a href="http://archives.aidanfindlater.com/blog/2010/02/03/use-vpn-for-specific-sites-on-mac-os-x/">url</a></p>
 </div>
-  
-  
 
 
-    </article>
-  
-  
-    <article>
-      
+    <footer>
+      <p class="meta neighbor clearfix">
+        
+          <a href="/blog/base64yuan-li-ji-bian-jie-ma-guo-cheng-jie-xi.html" class="float-l" title="Previous Post: Base64原理及编解码过程解析">&laquo; Base64原理及编解码过程解析</a>
+        
+        
+      </p>
+    </footer>
+  </article>
 
-<header>
-  
-    <h1 class="entry-title"><a href="/blog/base64yuan-li-ji-bian-jie-ma-guo-cheng-jie-xi.html">Base64原理及编解码过程解析</a></h1>
-  
-  
-    <p class="meta">
-      
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-12-22T15:21:00+08:00" pubdate="pubdate" data-updated="true">2012-12-22 Sat</time>
-      
-
-<span class="tags">
-  Tags:
-  
-    <a href='/blog/tags/base64/'>Base64</a>, <a href='/blog/tags/suan-fa/'>算法</a>
-  
-</span>
-
-      <span class="share-to-weibo">
-        <a href="javascript:void(0)" onclick="window.open('http://service.weibo.com/share/share.php?appkey=&amp;ralateUid=&amp;title=Base64原理及编解码过程解析 - &amp;url=http://afarfly.github.com/blog/base64yuan-li-ji-bian-jie-ma-guo-cheng-jie-xi.html', null, 'width=615,height=505,toolbar=0,status=0')" class="sina-weibo" title="分享到新浪微博"></a>
-
-        <a href="javascript:void(0)" onclick="window.open('http://share.v.t.qq.com/index.php?c=share&amp;a=index&amp;appkey=&amp;title=Base64原理及编解码过程解析 - &amp;url=http://afarfly.github.com/blog/base64yuan-li-ji-bian-jie-ma-guo-cheng-jie-xi.html', null, 'width=700,height=680,toolbar=0,status=0')" class="tencent-weibo" title="分享到腾讯微博"></a>
-
-        <a href="javascript:void(0)" onclick="window.open('https://twitter.com/intent/tweet?text=Base64原理及编解码过程解析 - http://afarfly.github.com/blog/base64yuan-li-ji-bian-jie-ma-guo-cheng-jie-xi.html', null, 'width=600,height=300,toolbar=0,status=0')" class="twitter" title="分享到Twitter"></a>
-      </span>
-    </p>
-  
-</header>
-
-
-  <div class="entry-content typo"><p>一. Base64的定义  <br/>
-按照RFC2045的定义, Base64被定义为: Base64内容传送编码被设计用来把任意字节序列表现为一种不易被人类直接识别的形式(The Base64 Content-Transfer-Encoding is designed to represent arbitrary sequences of octets in a form that need not be humanly readable)</p>
-
-<p>使用的字符包括大小写字母各26个, 10个数字, 以及加号&#8217;+&#8217;和斜杠&#8217;/&#8217;, 一共64个字符. [A-Za-z0-9+/]</p>
-
-<p>另外, 在一些编码末尾会出现一到两个等号&#8217;=&#8217;, 这是在编码后不满4个字符时补足.</p>
-
-<p>二. 作用及用途</p>
-
-<ol>
-<li>实现简单的数据加密, 使普通用户不能直观的看到真实数据内容. 相对其它加密编码方案, Base64的实现过程简单高效, 对于保密程度不高的数据可使用. 如迅雷专用下载链就是将真实的下载地址首尾分别加上&#8217;AA&#8217;和&#8217;ZZ&#8217;之后进行Base64编码.</li>
-<li>在一些系统或应用中, 只能使用ASCII字符. 例如Email, 需使用Base64对数据进行编码后. 这是因为早期的Email只允许传送ASCII字符, 即一个8位字节的低7位(0-127). 如果发送的Email内容带有非ASCII字符, 在通过有&#8221;历史问题&#8221;的网关时, 字节的最高位可能会被置为0, 这时问题就出现了.</li>
-</ol>
-
-
-<p>三. Base64的其他编码形式</p>
-
-<p>标准的Base64编码并不适合放到URL里传输, 因为URL编码器会把&#8217;+&#8217;和&#8217;/&#8217;字符转换为形如&#8217;%XX&#8217;的编码. 为解决此问题, 出现了一种用于URL的改进Base64编码, 它不在末尾填充&#8217;=&#8217;号, 并将标准Base64中的&#8217;+&#8217;和&#8217;/&#8217;替换为&#8217;*&#8217;和&#8217;-&#8216;, 这样就避免了在URL编解码时的转换.</p>
-
-<p>另外, 还有一种用于正则表达式的改进Base64编码, 将&#8217;+&#8217;和&#8217;/&#8217;替换为&#8217;!&#8217;和&#8217;-&#8216;. 因为&#8217;+&#8217;和&#8217;*&#8217;在正则表达式中都有特殊的含义.</p>
-
-<p>四. 编码原理及过程</p>
-
-<p>Base64的编码原理实际上就是将8bit字节序列转化为6bit字节序列. 6bit的范围为0-63, 正好对应[A-Za-z0-9+/]这64个ASCII字符.</p>
-
-<p>编码过程如下:</p>
-
-<blockquote><ol>
-<li>将字符串转换成二进制字节序列</li>
-<li>将8bit字节转换为6bit字节单元, 不足时补&#8217;0&#8217;.</li>
-<li>将转换后的字节序列每次取出6bit, 作为下标对应Base64码表取值. 在结尾时不足4个字符用&#8217;=&#8217;补足</li>
-</ol>
-</blockquote>
-
-<p>解码则是编码的逆向过程</p>
-
-<blockquote><ol>
-<li>如有&#8217;=&#8217;号则去除.  一一对应码表取出下标值</li>
-<li>转化为二进制, 去掉高位两个0, 变为6bit每字节</li>
-<li>按8bit划分. 末尾不足8bit的丢弃. 得到最终的原始二进制编码</li>
-</ol>
-</blockquote>
-
-<p>例如字符串&#8217;a&#8217;的编码过程</p>
-
-<blockquote><ol>
-<li>转换二进制编码为 01100001.</li>
-<li>每次读取6bit, 不足后补0, 转化为: 011000 / 010000.</li>
-<li>对应码表取值为Y / Q, 不足4个字符时以&#8217;=&#8217;填充.
-最终得到&#8217;a&#8217;的Base64编码为&#8221;YQ==&#8221;</li>
-</ol>
-</blockquote>
-
-<p>解码过程:</p>
-
-<blockquote><ol>
-<li>去除&#8217;=&#8217;, 得到YQ, 将一一对应码表取出下标24,16.</li>
-<li>转化为二进制, 去掉高位两个0, 得到 011000 / 010000.</li>
-<li>按8bit划分, 末尾不足8bit的丢弃. 得到01100001, 就这是原始二进制码, 对应字符串为&#8217;a&#8217;</li>
-</ol>
-</blockquote>
-</div>
-  
-  
-
-
-    </article>
-  
-
-  
+  <section id="disqus_thread"></section>
 </section>
-
 
 <footer class="footer">
   &copy;2012 wǒ_is神仙
@@ -373,7 +262,7 @@ if __name__ == '__main__':
 
 <script src="/javascripts/application.js"></script>
 
-
+<script>var disqus_shortname="afarfly",disqus_identifier=disqus_url="http://afarfly.github.com/blog/zi-dong-sheng-cheng-vpnlu-you-biao.html",disqus_script="embed.js";(function(){var a=document.createElement("script");a.async=!0,a.src="http://"+disqus_shortname+".disqus.com/"+disqus_script,document.getElementsByTagName("head")[0].appendChild(a)})()</script>
 <iframe src="/offline-cache.html" style="display:none"></iframe>
 </body>
 </html>
